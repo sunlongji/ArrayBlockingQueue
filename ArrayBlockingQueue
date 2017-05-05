@@ -1,0 +1,55 @@
+
+public class ArrayBlockingQueue {
+    private Object[] array;
+    private int size = 0;
+    private int head = 0; // index of the current front item, if one exists
+    private int tail = 0; // index of next item to be added
+
+    public ArrayBlockingQueue(int capacity) {
+        array = new Object[capacity];
+    }
+
+    public synchronized void enqueue(Object item) throws InterruptedException {
+        while (size == array.length) {
+            wait();
+        }
+        boolean e = isEmpty();
+        array[tail] = item;
+        tail = (tail + 1) % array.length;
+        size++;
+        if (e)
+            notifyAll();
+    }
+
+    public synchronized Object dequeue() throws InterruptedException {
+        while (isEmpty()) {
+        	wait();
+        }
+        boolean f = (size == array.length);
+        Object item = array[head];
+        array[head] = null;
+        head = (head + 1) % array.length;
+        size--;
+        if (f)
+            notifyAll();
+        return item;
+    }
+
+    public synchronized Object peek() throws InterruptedException {
+    	while (isEmpty()) {
+        	wait();
+        }
+        boolean f = (size == array.length);
+        if (f)
+            notifyAll();
+        return array[head];
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    public int size() {
+        return size;
+    }
+}
